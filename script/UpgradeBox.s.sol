@@ -1,38 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {BoxV2} from "../src/BoxV2.sol";
-import {DevOpsTools} from "foundry-devops/contracts/DevOpsTools.sol";
+import {DevOpsTools} from "foundry-devops/src/DevOpsTools.sol";
 import {BoxV1} from "../src/BoxV1.sol";
 
 contract UpgradeBox is Script {
 
-    function run() public returns (address) {
-        return upgradeBox();
+    function run() external returns (address) {
+        address mostRecentlyDeployedBox = DevOpsTools.get_most_recent_deployment("BoxV1", block.chainid);
+        console.log("Most Recently Deployed BoxV1: %s", mostRecentlyDeployedBox);
+        address mostRecentlyDeployedProxy = DevOpsTools.get_most_recent_deployment("ERC1967Proxy", block.chainid);
+
+        vm.startBroadcast();
+        BoxV2 newBox = new BoxV2();
+        vm.stopBroadcast();
+        address proxy = upgradeBox(mostRecentlyDeployedProxy, address(newBox));
+        return proxy;
     }
 
-    function upgradeBox() public returns (address) {
-        // Get most recent deployed Proxy
-        address boxV2Address = deployBoxV2();
-        address proxyAddress = getMostRecentProxyDeployment();
-        BoxV1 proxy = BoxV1(proxyAddress);
-        bytes memory encodedData = abi.encodeWithSelector(BoxV2.initialize.selector, 603);
+    function upgradeBox(address proxyAddress, address newBox) public returns (address) {
         vm.startBroadcast();
-        proxy.upgradeToAndCall(boxV2Address, encodedData);
+        BoxV1 proxy = BoxV1(payable(proxyAddress));
+        proxy.upgradeToAndCall(address(newBox), abi.encodeWithSelector(BoxV2.initialize.selector, 603));
         vm.stopBroadcast();
         return address(proxy);
-    }
-
-    function deployBoxV2() public returns (address) {
-        vm.startBroadcast();
-        BoxV2 boxV2 = new BoxV2();
-        vm.stopBroadcast();
-        return address(boxV2);
-    }
-
-    function getMostRecentProxyDeployment() public view returns (address) {
-       return DevOpsTools.get_most_recent_deployment("ERC1967Proxy", block.chainid);
     }
 }
 

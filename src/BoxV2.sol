@@ -6,7 +6,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 
 
 contract BoxV2 is OwnableUpgradeable, UUPSUpgradeable {
-    uint256 private _value;
+    uint256 private _number;
     uint256 private _version;
 
     event ValueChanged(uint256 value);
@@ -15,22 +15,22 @@ contract BoxV2 is OwnableUpgradeable, UUPSUpgradeable {
     function initialize(uint256 value) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
-        _value = value;
+        _number = value;
         _version = 2;
     }
 
-    function setValue(uint256 value) public {
-        emit ValueChanged(value);
-        _value = value;
+    function setNumber(uint256 number) public {
+        emit ValueChanged(number);
+        _number = number;
     }
 
-    function getValue() public view returns (uint256) {
-        return _value;
+    function getNumber() public view returns (uint256) {
+        return _number;
     }
 
     function getVersion() public view returns (uint256) {
         return _version;
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    function _authorizeUpgrade(address newImplementation) internal override {}
 }
