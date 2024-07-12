@@ -5,18 +5,18 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 
-contract BoxV2 is OwnableUpgradeable, UUPSUpgradeable {
+contract BoxV3 is OwnableUpgradeable, UUPSUpgradeable {
     uint256 private _number;
     uint256 private _version;
 
     event ValueChanged(uint256 value);
 
     // TODO: In test case try setting it to a different value
-    function initializeV2(uint256 value) public reinitializer(2) {
+    function initializeV2(uint256 value) public reinitializer(3) {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
         _number = value;
-        _version = 2;
+        _version = 3;
     }
 
     function setNumber(uint256 number) public {

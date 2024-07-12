@@ -19,7 +19,7 @@ contract UpgradeBox is Script {
         address proxyAddress = getMostRecentProxyDeployment();
         console.log("Proxy Address: %s", proxyAddress);
         BoxV1 proxy = BoxV1(proxyAddress);
-        bytes memory encodedData = abi.encodeWithSelector(BoxV2.initialize.selector, number);
+        bytes memory encodedData = abi.encodeWithSelector(BoxV2.initializeV2.selector, number);
         vm.startBroadcast();
         proxy.upgradeToAndCall(boxV2Address, encodedData);
         vm.stopBroadcast();
